@@ -32,7 +32,7 @@
 
         <div class="col">
             {% if user.is_authenticated %}
-                <p>Ola {{user.username }}
+                <p>Ola {{request.session.message }}
                     <a href="{% url 'logout' %}">
                         <span class="badge badge-dark">Sair</span>
                     </a>
@@ -42,13 +42,9 @@
         </div>
     </div>
 
-
 {% endblock %}
 
+
 {% block footer %}
-    <footer class="footer">
-      <div class="container">
-        <span class="text-muted">Desenvolvimento web com Django 2.x</span>
-      </div>
-    </footer>
+    {% include 'footer.html' %}
 {% endblock %}

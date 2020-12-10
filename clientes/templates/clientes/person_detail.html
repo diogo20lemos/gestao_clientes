@@ -1,0 +1,24 @@
+
+Nome: {{ object.first_name }}
+Sobrenome: {{object.last_name}}
+Documento: {{object.doc}}
+
+<h2>Vendas</h2>
+{% for venda in vendas %}
+    <p>Venda id: {{venda.id}}</p>
+    <h3>Lista de produtos</h3>
+    <ul>
+        {% for produto in venda.produtos.all %}
+            <li>{{produto.id}} - {{produto.descricao}}</li>
+        {% endfor %}
+    </ul>
+{% endfor %}
+
+<p>Date: {{now|date}}</p>
+
+<br>
+<a href="{% url 'person_create_cbv' %}">New</a>
+<br>
+<a href="{% url 'person_update_cbv' object.id %}">Update</a>
+<br>
+<a href="{% url 'person_delete_cbv' object.id %}">Delete</a>

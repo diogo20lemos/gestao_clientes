@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<h1>Editando item {{item_pedido}}</h1>
+
+<form method="post" >
+    {% csrf_token %}
+    {{ form }}
+
+    <button type="button" >Atualizar</button>
+</form>
+
+
+{% endblock %}

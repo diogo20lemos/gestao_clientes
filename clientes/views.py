@@ -1,5 +1,16 @@
+from datetime import timezone
+
+from django.forms import model_to_dict
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, \
+    DeleteView
+from django.views.generic.base import View
+
+from produtos.models import Produto
+from vendas.models import Venda
 from .models import Person
 from .forms import PersonForm
 
@@ -41,3 +52,83 @@ def persons_delete(request, id):
         return redirect('person_list')
 
     return render(request, 'person_delete_confirm.html', {'person': person})
+
+
+class PersonList(ListView):
+    model = Person
+
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        primeiro_acesso = self.request.session.get('primeiro_acesso', False)
+
+        if not primeiro_acesso:
+            context['message'] = 'Seja bem vindo ao seu primeiro acesso hoje.'
+            self.request.session['primeiro_acesso'] = True
+        else:
+            context['message'] = 'Você já acesseou hoje.'
+
+        return context
+
+class PersonDetail(DetailView):
+    model = Person
+
+    def get_object(self, queryset=None):
+        pk = self.kwargs.get(self.pk_url_kwarg)
+        return Person.objects.select_related('doc').get(id=pk)
+
+    def get_context_data(self, **kwargs):
+        context = super.get_context_data(**kwargs)
+        context['now'] = timezone.now()
+        context['vendas'] = Venda.objects.filter(pessoa_id=self.object.id)
+        return context
+
+
+class PersonCreate(CreateView):
+    model = Person
+    fields = ['first_name', 'last_name', 'age', 'salary', 'bio', 'photo']
+    success_url = '/clientes/person_list'
+
+class PersonUpdate(UpdateView):
+    model = Person
+    fields = ['first_name', 'last_name', 'age', 'salary', 'bio', 'photo']
+    success_url = '/clientes/person_list_cbv'
+
+class PersonDelete(DeleteView):
+    model = Person
+    success_url = reverse_lazy('person_list_cbv')
+
+class ProdutoBulk(View):
+    def get(self, request):
+        produtos = ['Banana', 'Maca', 'Limao', 'Laranja', 'Pera']
+        list_produtos = []
+
+        for produto in produtos:
+            p = Produto(descricao=produto, preco=10)
+            list_produtos.append(p)
+        Produto.objects.bulk_create(list_produtos)
+        return HttpResponse('Funcionou')
+
+def api(request):
+    a = {
+        'nome': 'Diogo',
+        'idade': '29',
+        'salario': 5000
+    }
+
+    produto = Produto.objects.last()
+    b = model_to_dict(produto)
+
+    produtos = Produto.objects.all()
+
+    l = []
+    for produto in produtos:
+        l.append(model_to_dict(produto))
+
+    return JsonResponse(b, status=200, safe=False)
+
+class APICBV(View):
+    def get(self, request):
+        data = {
+            'nome': 'Diogo',
+        }
+        return JsonResponse(data)

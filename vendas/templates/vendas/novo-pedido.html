@@ -1,0 +1,71 @@
+{% extends 'base.html %}
+{% load bootstrap %}
+
+{% block main %}
+
+    {% if messagem %}
+        {{ mensagem }}
+    {% endif %}
+
+    <div class="row" >
+        <div class="col-12">
+            <h1>Novo Pedido</h1>
+        {% csrf_token %}
+        <form action="{% url 'novo-pedido' %}" method="POST" >
+            <h2>Cabeçalho do Pedido: {{venda.numero}}</h2>
+            <input type="text" name="numero" class="form-control" value="{{numero}}" >
+
+            <label for="desconto">Desconto</label>
+            <input type="text" name="desconto" id="desconto" class="form-control" value="{{desconto}}" placeholder="Desconto" >
+
+            <input type="hidden" value="{{venda.id}}" name="venda_id" >
+
+            <button type="submit" >Enviar</button>
+        </form>
+            <br>
+            <b>Total:</b> {{ venda.valor }} <br>
+            <b>Desconto:</b> {{ venda.desconto }}
+        </div>
+
+    </div>
+
+
+{% endblock %}
+
+{% block extra %}
+
+{% if venda %}
+    <form action="{% url 'novo-item-pedido' venda.id %}" method="POST" >
+        {% csrv_token %}
+        {{ form_item|bootstrap }}
+        <button class="btn btn-info" >Incluir</button>
+    </form>
+
+
+    <h2>Listagem de itens</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col" >ID</th>
+                <th scope="col" >Descrição</th>
+                <th scope="col" >Quantidade</th>
+                <th scope="col" >Desconto</th>
+                <th scope="col" >Excluir</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in itens %}
+                <tr>
+                    <td>{{item.id}}</td>
+                    <td>{{item.produto.descricao}}</td>
+                    <td>{{item.quantidade}}</td>
+                    <td>{{item.descricao}}</td>
+                    <th  scope="col" >
+                        <a href="{% url 'delete-item-pedido' item.id %}" >Excluir</a>
+                    </th>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+{% endblock %}

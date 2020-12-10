@@ -1,0 +1,14 @@
+Listagem Person
+
+<p>{{message}}</p>
+
+{% for person in object_list %}
+    <br>
+    <a href="{% url 'person_detail_cbv' person.pk %}">{{person}}</a>
+
+{% endfor %}
+
+    <br>
+    <br>
+
+    <a href="{% url 'person_create_cbv'  %}">Novo</a>
